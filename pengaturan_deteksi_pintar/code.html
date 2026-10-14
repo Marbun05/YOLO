@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"secondary-fixed": "#7efba4", outline: "#6e7979", "on-primary-fixed-variant": "#00504f", tertiary: "#854524", "indicator-alert-red": "#E74C3C", "on-surface": "#191c1d", "on-secondary-fixed-variant": "#005228", "secondary-fixed-dim": "#61de8a", "surface-container-high": "#e7e8e9", "surface-tint": "#006a69", "inverse-on-surface": "#eff1f2", background: "#f8f9fa", "on-error": "#ffffff", "outline-variant": "#bdc9c8", "on-background": "#191c1d", "primary-container": "#0e7c7b", "on-tertiary-container": "#fff1eb", "surface-dim": "#d8dadb", "secondary-container": "#7bf8a1", "on-tertiary-fixed-variant": "#713615", "on-surface-variant": "#3e4948", "error-container": "#ffdad6", primary: "#006161", surface: "#f8f9fa", "on-secondary-fixed": "#00210c", "surface-container-low": "#f2f4f5", secondary: "#006d37", "surface-bright": "#f8f9fa", "surface-variant": "#e1e3e4", "inverse-primary": "#7cd5d3", "tertiary-fixed-dim": "#ffb693", "on-primary": "#ffffff", "surface-bg-soft": "#F5F7F8", "tertiary-fixed": "#ffdbcc", "on-error-container": "#93000a", "surface-container-lowest": "#ffffff", error: "#ba1a1a", "inverse-surface": "#2e3132", "surface-container-highest": "#e1e3e4", "primary-fixed-dim": "#7cd5d3", "surface-container": "#eceeef", "surface-card": "#FFFFFF", "surface-tint-cyan": "#E0F2F1", "primary-fixed": "#98f2f0", "tertiary-container": "#a35d39", "on-tertiary-fixed": "#351000", "on-tertiary": "#ffffff", "on-primary-fixed": "#002020", "on-secondary": "#ffffff", "on-secondary-container": "#007239", "on-primary-container": "#c3fffd"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {margin: "1.25rem", "space-md": "1rem", gutter: "1rem", "space-sm": "0.5rem", "space-xs": "0.25rem", "space-lg": "1.5rem", "margin-mobile": "1rem", "space-xl": "2rem"}, fontFamily: {"label-lg": ["Inter"], "headline-lg": ["Inter"], "label-sm": ["Inter"], "body-lg": ["Inter"], "headline-sm": ["Inter"], "body-sm": ["Inter"], "title-md": ["Inter"], "headline-md": ["Inter"], "label-md": ["Inter"], "body-md": ["Inter"], headline: ["Inter"], display: ["Inter"], body: ["Inter"], label: ["Inter"]}, fontSize: {"label-lg": ["14px", {lineHeight: "18px", letterSpacing: "0.5px", fontWeight: "700"}], "headline-lg": ["28px", {lineHeight: "36px", fontWeight: "700"}], "label-sm": ["10px", {lineHeight: "14px", letterSpacing: "1px", fontWeight: "700"}], "body-lg": ["16px", {lineHeight: "24px", fontWeight: "400"}], "headline-sm": ["18px", {lineHeight: "24px", fontWeight: "700"}], "body-sm": ["12px", {lineHeight: "16px", fontWeight: "400"}], "title-md": ["16px", {lineHeight: "22px", fontWeight: "600"}], "headline-md": ["22px", {lineHeight: "28px", fontWeight: "700"}], "label-md": ["12px", {lineHeight: "16px", letterSpacing: "0.75px", fontWeight: "700"}], "body-md": ["14px", {lineHeight: "20px", fontWeight: "400"}]}}}};</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 inset-x-0 z-50 bg-surface/90 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-margin-mobile flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><img alt="Logo Deteksi Pintar" class="h-8 w-auto object-contain flex-shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1V4ysaHeDOSlFIGmk8qa0C4VXZ0-ucajW5yddDhiJpNppayttHYiwu3BYq4B_YXmJyoNZmNk7UNBrdZnF7g3cdUd7VDc_0PEqHhhBAVEAxUFeCL4yPCdCZz5HpAkO2_I0iOk4QNtLrxsXeYzDGWzXm_44o-Zzt34HQ7_Gd4bAvbonQn90xYkWe3KrkL2hf0NNx_fI-G2gJ47iSKSYMMtUp7OffXqKj0s6rglF2YBYGGUEVHo75eBwBWtA8"/><div class="flex flex-col truncate"><span class="font-label-sm text-label-sm uppercase tracking-wider text-primary">Sistem AI Visi</span><h1 class="font-headline-sm text-headline-sm text-on-surface truncate">Pengaturan</h1></div></div><div class="flex items-center gap-space-xs"><button aria-label="Notifikasi Deteksi" class="w-11 h-11 rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span></button><button aria-label="Profil Pengguna" class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 shadow-sm" type="button"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></button></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-24 bg-surface px-margin-mobile"><div class="flex flex-col w-full pb-8 space-y-space-md">
+<!-- Status / Quick Insight Banner -->
+<div class="relative overflow-hidden rounded-xl bg-surface-tint-cyan p-space-md shadow-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0 text-on-primary shadow-sm">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">tune</span>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface">Konfigurasi AI</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary text-on-secondary font-label-sm text-label-sm uppercase">2 Aktif</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Mesin inferensi real-time siap mendeteksi target pilihan</p>
+</div>
+</div>
+</div>
+<!-- SEKSI 1: Target Object Selection -->
+<section class="space-y-space-sm">
+<div class="px-space-xs">
+<div class="flex items-center justify-between">
+<h2 class="font-title-md text-title-md text-on-surface">Objek Deteksi Real-Time</h2>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary">Kustomisasi</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Pilih kategori objek yang ingin dideteksi dan dianalisis oleh AI secara langsung.</p>
+</div>
+<div class="space-y-space-sm" id="category-cards"></div>
+<div class="hidden" id="legacy-category-cards">
+<!-- Card A: Kendaraan Bermotor (Active - Teal) -->
+<div class="bg-surface-card rounded-2xl p-space-md shadow-sm transition-all duration-200">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-11 h-11 rounded-xl bg-primary-container/15 flex items-center justify-center flex-shrink-0 text-primary">
+<span class="material-symbols-outlined text-[24px]">directions_car</span>
+</div>
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="font-title-md text-title-md text-on-surface">Kendaraan Bermotor</span>
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Deteksi kecepatan &amp; alur jalan raya</p>
+</div>
+</div>
+<!-- Native-like Toggle Teal -->
+<button aria-checked="true" class="relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full bg-primary p-0.5 transition-colors duration-200 ease-in-out focus:outline-none" data-toggle="cat-vehicle" role="switch" type="button">
+<span class="translate-x-5 pointer-events-none inline-block h-6 w-6 transform rounded-full bg-on-primary shadow-sm ring-0 transition duration-200 ease-in-out flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[14px] font-bold">check</span>
+</span>
+</button>
+</div>
+<!-- Sub-options chips -->
+<div class="mt-space-md pt-space-sm flex flex-wrap gap-1.5 border-t border-surface-container" id="sub-vehicle">
+<button class="chip-item px-3 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md flex items-center gap-1 shadow-sm transition-all" data-active="true" data-class-ids="2" type="button">
+<span class="material-symbols-outlined text-[16px]">check</span>
+            Mobil
+          </button>
+<button class="chip-item px-3 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md flex items-center gap-1 shadow-sm transition-all" data-active="true" data-class-ids="3" type="button">
+<span class="material-symbols-outlined text-[16px]">check</span>
+            Sepeda Motor
+          </button>
+<button class="chip-item px-3 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md flex items-center gap-1 shadow-sm transition-all" data-active="true" data-class-ids="5" type="button">
+<span class="material-symbols-outlined text-[16px]">check</span>
+            Bus
+          </button>
+<button class="chip-item px-3 py-1.5 rounded-full bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center gap-1 transition-all" data-active="false" data-class-ids="7" type="button">
+<span class="material-symbols-outlined text-[16px] hidden">check</span>
+            Truk
+          </button>
+</div>
+</div>
+<!-- Card B: Pejalan Kaki & Orang (Active - Forest Green) -->
+<div class="bg-surface-card rounded-2xl p-space-md shadow-sm transition-all duration-200">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-11 h-11 rounded-xl bg-secondary/15 flex items-center justify-center flex-shrink-0 text-secondary">
+<span class="material-symbols-outlined text-[24px]">directions_walk</span>
+</div>
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="font-title-md text-title-md text-on-surface">Pejalan Kaki &amp; Orang</span>
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Keselamatan trotoar &amp; penyeberang</p>
+</div>
+</div>
+<!-- Toggle Forest Green -->
+<button aria-checked="true" class="relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full bg-secondary p-0.5 transition-colors duration-200 ease-in-out focus:outline-none" data-toggle="cat-pedestrian" role="switch" type="button">
+<span class="translate-x-5 pointer-events-none inline-block h-6 w-6 transform rounded-full bg-on-secondary shadow-sm ring-0 transition duration-200 ease-in-out flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-[14px] font-bold">check</span>
+</span>
+</button>
+</div>
+<!-- Sub-options chips -->
+<div class="mt-space-md pt-space-sm flex flex-wrap gap-1.5 border-t border-surface-container" id="sub-pedestrian">
+<button class="chip-item px-3 py-1.5 rounded-full bg-secondary text-on-secondary font-label-md text-label-md flex items-center gap-1 shadow-sm transition-all" data-active="true" data-class-ids="0" type="button">
+<span class="material-symbols-outlined text-[16px]">check</span>
+            Pejalan Kaki
+          </button>
+<button class="chip-item px-3 py-1.5 rounded-full bg-secondary text-on-secondary font-label-md text-label-md flex items-center gap-1 shadow-sm transition-all" data-active="true" data-class-ids="1" type="button">
+<span class="material-symbols-outlined text-[16px]">check</span>
+            Pengendara Sepeda
+          </button>
+<button class="chip-item px-3 py-1.5 rounded-full bg-secondary text-on-secondary font-label-md text-label-md flex items-center gap-1 shadow-sm transition-all" data-active="true" data-class-ids="0" type="button">
+<span class="material-symbols-outlined text-[16px]">check</span>
+            Anak-anak
+          </button>
+</div>
+</div>
+<!-- Card C: Rambu & Marka Jalan (Inactive - Toggleable) -->
+<div class="bg-surface-card rounded-2xl p-space-md shadow-sm transition-all duration-200">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-11 h-11 rounded-xl bg-surface-container-high flex items-center justify-center flex-shrink-0 text-on-surface-variant">
+<span class="material-symbols-outlined text-[24px]">traffic</span>
+</div>
+<div>
+<span class="font-title-md text-title-md text-on-surface">Rambu &amp; Marka Jalan</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Kepatuhan marka dan sinyal lampu</p>
+</div>
+</div>
+<!-- Toggle Inactive -->
+<button aria-checked="false" class="relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full bg-surface-container-highest p-0.5 transition-colors duration-200 ease-in-out focus:outline-none" data-toggle="cat-signs" role="switch" type="button">
+<span class="translate-x-0 pointer-events-none inline-block h-6 w-6 transform rounded-full bg-surface-card shadow-sm ring-0 transition duration-200 ease-in-out flex items-center justify-center"></span>
+</button>
+</div>
+<div class="mt-space-md pt-space-sm flex flex-wrap gap-1.5 opacity-60" id="sub-signs">
+<button class="chip-item px-3 py-1.5 rounded-full bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center gap-1" data-active="false" data-class-ids="9,11" type="button">Rambu Lalu Lintas</button>
+<button class="chip-item px-3 py-1.5 rounded-full bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center gap-1" data-active="false" data-class-ids="11" type="button">Rambu Stop</button>
+<button class="chip-item px-3 py-1.5 rounded-full bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center gap-1" data-active="false" data-class-ids="9" type="button">Lampu Lalu Lintas</button>
+</div>
+</div>
+<!-- Card D: Hewan Peliharaan / Satwa Liar (Inactive) -->
+<div class="bg-surface-card rounded-2xl p-space-md shadow-sm transition-all duration-200">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-11 h-11 rounded-xl bg-surface-container-high flex items-center justify-center flex-shrink-0 text-on-surface-variant">
+<span class="material-symbols-outlined text-[24px]">pets</span>
+</div>
+<div>
+<span class="font-title-md text-title-md text-on-surface">Hewan &amp; Satwa Liar</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Mitigasi tabrakan hewan di jalan</p>
+</div>
+</div>
+<!-- Toggle Inactive -->
+<button aria-checked="false" class="relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full bg-surface-container-highest p-0.5 transition-colors duration-200 ease-in-out focus:outline-none" data-toggle="cat-animals" role="switch" type="button">
+<span class="translate-x-0 pointer-events-none inline-block h-6 w-6 transform rounded-full bg-surface-card shadow-sm ring-0 transition duration-200 ease-in-out flex items-center justify-center"></span>
+</button>
+</div>
+<div class="mt-space-md pt-space-sm flex flex-wrap gap-1.5 opacity-60" id="sub-animals">
+<button class="chip-item px-3 py-1.5 rounded-full bg-surface-container-high text-on-surface font-label-md text-label-md" data-active="false" data-class-ids="15" type="button">Kucing</button>
+<button class="chip-item px-3 py-1.5 rounded-full bg-surface-container-high text-on-surface font-label-md text-label-md" data-active="false" data-class-ids="16" type="button">Anjing</button>
+<button class="chip-item px-3 py-1.5 rounded-full bg-surface-container-high text-on-surface font-label-md text-label-md" data-active="false" data-class-ids="17,18,19" type="button">Hewan Ternak</button>
+</div>
+</div>
+</div>
+</section>
+<!-- SEKSI 2: Model & Sensitivity Configuration -->
+<section class="space-y-space-sm pt-space-sm">
+<div class="px-space-xs">
+<div class="flex items-center justify-between">
+<h2 class="font-title-md text-title-md text-on-surface">Konfigurasi Model &amp; AI</h2>
+<span class="material-symbols-outlined text-primary text-[20px]">smart_toy</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Sesuaikan ketelitian inferensi dan performa hardware perangkat.</p>
+</div>
+<div class="bg-surface-card rounded-2xl p-space-md shadow-sm space-y-space-md">
+<!-- AI Model Selector -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant uppercase mb-1.5" for="ai-model-select">Mesin Inferensi (Vision Model)</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-low rounded-xl px-space-md py-3 font-body-md text-body-md text-on-surface pr-10 focus:outline-none focus:bg-surface-tint-cyan/40 cursor-pointer" id="ai-model-select">
+<option selected="" value="yolo-optimal">YOLOv8 Mobile - Optimal (Direkomendasikan)</option>
+<option value="yolo-tiny">YOLOv8 Tiny - Hemat Baterai (Low Latency)</option>
+<option value="yolo-high">YOLOv8 High-Res - Akurasi Tinggi (NPU Turbo)</option>
+</select>
+<span class="material-symbols-outlined pointer-events-none absolute right-3 top-3.5 text-on-surface-variant text-[20px]">expand_more</span>
+</div>
+</div>
+<!-- Confidence Threshold Slider -->
+<div class="space-y-2 pt-2">
+<div class="flex justify-between items-center">
+<span class="font-title-md text-body-md text-on-surface">Ambang Keyakinan (Confidence)</span>
+<span class="font-label-lg text-label-lg text-primary px-2.5 py-0.5 rounded-full bg-surface-tint-cyan" id="confidence-val">75%</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Objek di bawah ambang ini akan diabaikan oleh detektor.</p>
+<div class="relative py-1">
+<input class="w-full h-2 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-primary" id="confidence-range" max="100" min="0" type="range" value="75"/>
+</div>
+<div class="flex justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span>Sensitif (0%)</span>
+<span>Presisi (100%)</span>
+</div>
+<button class="w-full mt-space-sm py-3 px-space-md rounded-xl bg-primary text-on-primary font-label-lg text-label-lg" id="save-settings" type="button">Simpan Pengaturan</button>
+</div>
+<!-- Frame Rate Limit -->
+<div class="space-y-2 pt-2">
+<div class="flex justify-between items-center">
+<span class="font-title-md text-body-md text-on-surface">Batas Kecepatan Frame (FPS)</span>
+<span class="font-label-sm text-label-sm uppercase text-secondary font-bold">Stabil</span>
+</div>
+<div class="grid grid-cols-3 gap-2">
+<button class="fps-btn py-2 px-3 rounded-xl bg-surface-container-low text-on-surface font-label-md text-label-md text-center transition-all" data-fps="30" type="button">30 FPS</button>
+<button class="fps-btn py-2 px-3 rounded-xl bg-primary text-on-primary font-label-md text-label-md text-center shadow-sm transition-all" data-fps="60" type="button">60 FPS</button>
+<button class="fps-btn py-2 px-3 rounded-xl bg-surface-container-low text-on-surface font-label-md text-label-md text-center transition-all" data-fps="max" type="button">Maksimal</button>
+</div>
+</div>
+<!-- HUD & Overlays Toggle List -->
+<div class="pt-2 space-y-3">
+<div class="flex items-center justify-between">
+<div class="pr-2">
+<span class="font-body-md text-body-md text-on-surface font-semibold">Tampilkan Label Persentase Akurasi</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Menyematkan skor skor skor 98% di atas target</p>
+</div>
+<button aria-checked="true" class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full bg-primary p-0.5 transition-colors focus:outline-none" data-toggle="simple" role="switch" type="button">
+<span class="translate-x-5 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-on-primary shadow-sm transition"></span>
+</button>
+</div>
+<div class="flex items-center justify-between">
+<div class="pr-2">
+<span class="font-body-md text-body-md text-on-surface font-semibold">Tampilkan Garis Bounding Box</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Kotak perimeter vektor pada kamera aktif</p>
+</div>
+<button aria-checked="true" class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full bg-primary p-0.5 transition-colors focus:outline-none" data-toggle="simple" role="switch" type="button">
+<span class="translate-x-5 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-on-primary shadow-sm transition"></span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- SEKSI 3: Storage & Log -->
+<section class="space-y-space-sm pt-space-sm">
+<div class="px-space-xs">
+<div class="flex items-center justify-between">
+<h2 class="font-title-md text-title-md text-on-surface">Penyimpanan &amp; Log Riwayat</h2>
+<span class="material-symbols-outlined text-primary text-[20px]">folder</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Pengarsipan rekaman citra deteksi dan telemetri objek.</p>
+</div>
+<div class="bg-surface-card rounded-2xl p-space-md shadow-sm space-y-space-md">
+<!-- Auto Snapshot Toggle -->
+<div class="flex items-center justify-between">
+<div class="pr-2">
+<div class="flex items-center gap-1.5">
+<span class="font-body-md text-body-md text-on-surface font-semibold">Simpan Otomatis Tangkapan Layar</span>
+<span class="material-symbols-outlined text-primary text-[18px]">photo_camera</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Arsipkan foto ketika objek baru teridentifikasi</p>
+</div>
+<button aria-checked="true" class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full bg-primary p-0.5 transition-colors focus:outline-none" data-toggle="simple" role="switch" type="button">
+<span class="translate-x-5 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-on-primary shadow-sm transition"></span>
+</button>
+</div>
+<!-- Export Format Selector -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant uppercase mb-2">Format Ekspor Metadata</label>
+<div class="grid grid-cols-3 gap-2">
+<button class="format-btn py-2 px-3 rounded-xl bg-primary text-on-primary font-label-md text-label-md text-center shadow-sm transition-all" data-format="json" type="button">JSON</button>
+<button class="format-btn py-2 px-3 rounded-xl bg-surface-container-low text-on-surface font-label-md text-label-md text-center transition-all" data-format="csv" type="button">CSV</button>
+<button class="format-btn py-2 px-3 rounded-xl bg-surface-container-low text-on-surface font-label-md text-label-md text-center transition-all" data-format="txt" type="button">Teks (TXT)</button>
+</div>
+</div>
+<!-- Storage Directory Card -->
+<div class="bg-surface-container-low p-space-sm rounded-xl">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Direktori Penyimpanan</span>
+<div class="flex items-center justify-between mt-1 gap-space-xs">
+<div class="flex items-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-primary text-[20px] flex-shrink-0">sd_card</span>
+<p class="font-body-sm text-body-sm text-on-surface truncate">/Storage/Emulated/0/DeteksiPintar</p>
+</div>
+<button class="text-primary font-label-sm text-label-sm uppercase flex-shrink-0 hover:underline" type="button">Ubah</button>
+</div>
+</div>
+<!-- Clear Cache Button -->
+<div class="pt-1">
+<button class="w-full py-3 px-space-md rounded-xl bg-error-container text-on-error-container font-label-lg text-label-lg flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all" id="btn-clear-cache" type="button">
+<span class="material-symbols-outlined text-[20px]">delete_sweep</span>
+          Bersihkan Cache &amp; Riwayat Deteksi
+        </button>
+</div>
+</div>
+</section>
+<!-- SEKSI 4: About Application -->
+<section class="space-y-space-sm pt-space-sm">
+<div class="px-space-xs">
+<h2 class="font-title-md text-title-md text-on-surface">Tentang Aplikasi</h2>
+</div>
+<div class="bg-surface-card rounded-2xl p-space-md shadow-sm space-y-space-sm">
+<div class="flex items-center gap-space-md pb-space-sm border-b border-surface-container">
+<div class="w-12 h-12 rounded-2xl bg-surface-tint-cyan flex items-center justify-center text-primary shadow-inner">
+<span class="material-symbols-outlined text-[28px]">visibility</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-on-surface">Deteksi Pintar</span>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm">v2.4.0</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Core Engine: Ultralytics YOLOv8 Edge</p>
+</div>
+</div>
+<div class="space-y-1 pt-1">
+<div class="flex justify-between items-center py-2">
+<span class="font-body-md text-body-md text-on-surface">Dikembangkan oleh</span>
+<span class="font-title-md text-title-md text-primary font-bold">Melvin</span>
+</div>
+<a class="flex justify-between items-center py-2 text-on-surface hover:text-primary transition-colors" href="#kebijakan">
+<span class="font-body-md text-body-md">Kebijakan Privasi &amp; Enkripsi Data</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">chevron_right</span>
+</a>
+<a class="flex justify-between items-center py-2 text-on-surface hover:text-primary transition-colors" href="#lisensi">
+<span class="font-body-md text-body-md">Lisensi Open Source &amp; Kredit</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">chevron_right</span>
+</a>
+</div>
+</div>
+</section>
+<!-- Floating Toast Confirmation (Hidden by Default) -->
+<div class="fixed bottom-20 left-4 right-4 bg-inverse-surface text-inverse-on-surface px-space-md py-3 rounded-xl shadow-lg flex items-center justify-between transform translate-y-32 opacity-0 pointer-events-none transition-all duration-300 z-40" id="toast-notify">
+<div class="flex items-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-secondary-fixed text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-body-sm text-body-sm truncate" id="toast-msg">Pengaturan berhasil diperbarui</span>
+</div>
+<button class="text-inverse-on-surface opacity-75 hover:opacity-100" onclick="hideToast()" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+</div>
+<script>
+  (function() {
+    // Helper Toast
+    var toast = document.getElementById('toast-notify');
+    var toastMsg = document.getElementById('toast-msg');
+    var toastTimeout;
+
+    window.showToast = function(msg) {
+      if (!toast) return;
+      toastMsg.textContent = msg;
+      toast.classList.remove('translate-y-32', 'opacity-0', 'pointer-events-none');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(function() {
+        window.hideToast();
+      }, 2600);
+    };
+
+    window.hideToast = function() {
+      if (!toast) return;
+      toast.classList.add('translate-y-32', 'opacity-0', 'pointer-events-none');
+    };
+
+    // Confidence Slider Update
+    var range = document.getElementById('confidence-range');
+    var rangeVal = document.getElementById('confidence-val');
+    if (range && rangeVal) {
+      range.addEventListener('input', function(e) {
+        rangeVal.textContent = e.target.value + '%';
+      });
+      range.addEventListener('change', function(e) {
+        window.showToast('Ambang batas disetel: ' + e.target.value + '%');
+      });
+    }
+
+    // Toggle interactions
+    var toggles = document.querySelectorAll('button[role="switch"]');
+    toggles.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var isChecked = btn.getAttribute('aria-checked') === 'true';
+        var newState = !isChecked;
+        btn.setAttribute('aria-checked', newState ? 'true' : 'false');
+        
+        var knob = btn.querySelector('span');
+        var checkIcon = btn.querySelector('.material-symbols-outlined');
+
+        if (newState) {
+          knob.classList.add('translate-x-5');
+          knob.classList.remove('translate-x-0');
+          if (!btn.classList.contains('bg-secondary')) {
+            btn.classList.add('bg-primary');
+            btn.classList.remove('bg-surface-container-highest');
+          }
+          if (checkIcon) checkIcon.classList.remove('hidden');
+          window.showToast('Fitur diaktifkan');
+        } else {
+          knob.classList.remove('translate-x-5');
+          knob.classList.add('translate-x-0');
+          btn.classList.remove('bg-primary', 'bg-secondary');
+          btn.classList.add('bg-surface-container-highest');
+          if (checkIcon) checkIcon.classList.add('hidden');
+          window.showToast('Fitur dinonaktifkan');
+        }
+      });
+    });
+
+    // Chip Sub-options Interactive Toggle
+    var chips = document.querySelectorAll('.chip-item');
+    chips.forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        var isActive = chip.getAttribute('data-active') === 'true';
+        var icon = chip.querySelector('.material-symbols-outlined');
+        
+        if (isActive) {
+          chip.setAttribute('data-active', 'false');
+          chip.classList.remove('bg-primary', 'bg-secondary', 'text-on-primary', 'text-on-secondary', 'shadow-sm');
+          chip.classList.add('bg-surface-container-high', 'text-on-surface');
+          if (icon) icon.classList.add('hidden');
+        } else {
+          chip.setAttribute('data-active', 'true');
+          chip.classList.remove('bg-surface-container-high', 'text-on-surface');
+          chip.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
+          if (icon) icon.classList.remove('hidden');
+        }
+      });
+    });
+
+    // FPS Selector Buttons
+    var fpsBtns = document.querySelectorAll('.fps-btn');
+    fpsBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        fpsBtns.forEach(function(b) {
+          b.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm');
+          b.classList.add('bg-surface-container-low', 'text-on-surface');
+        });
+        btn.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
+        btn.classList.remove('bg-surface-container-low', 'text-on-surface');
+        window.showToast('Mode frame rate: ' + btn.textContent.trim());
+      });
+    });
+
+    // Format Selector Buttons
+    var formatBtns = document.querySelectorAll('.format-btn');
+    formatBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        formatBtns.forEach(function(b) {
+          b.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm');
+          b.classList.add('bg-surface-container-low', 'text-on-surface');
+        });
+        btn.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
+        btn.classList.remove('bg-surface-container-low', 'text-on-surface');
+        window.showToast('Format ekspor: ' + btn.textContent.trim());
+      });
+    });
+
+    // Clear Cache Button simulation
+    var clearBtn = document.getElementById('btn-clear-cache');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', function() {
+        if (confirm('Bersihkan seluruh cache inferensi dan riwayat log lokal?')) {
+          window.showToast('Cache berhasil dibersihkan (0 B tersisa)');
+        }
+      });
+    }
+
+    // Persist detector class IDs and confidence through the Flask settings API.
+    var categoryContainer = document.getElementById('category-cards');
+    var legacyCards = document.getElementById('legacy-category-cards');
+    if (legacyCards) legacyCards.remove();
+    var categories = [
+      {title: 'Kendaraan Bermotor', icon: 'directions_car', description: 'Mobilitas jalan raya dan transportasi', items: [[2, 'Mobil'], [3, 'Sepeda Motor'], [5, 'Bus'], [7, 'Truk'], [4, 'Pesawat'], [6, 'Kereta'], [8, 'Perahu']]},
+      {title: 'Pejalan Kaki & Orang', icon: 'directions_walk', description: 'Orang dan kendaraan non-motor', items: [[0, 'Orang'], [1, 'Sepeda']]},
+      {title: 'Hewan & Satwa Liar', icon: 'pets', description: 'Hewan peliharaan dan satwa liar', items: [[14, 'Burung'], [15, 'Kucing'], [16, 'Anjing'], [17, 'Kuda'], [18, 'Domba'], [19, 'Sapi'], [20, 'Gajah'], [21, 'Beruang'], [22, 'Zebra'], [23, 'Jerapah']]},
+      {title: 'Rambu & Fasilitas Jalan', icon: 'traffic', description: 'Sinyal lalu lintas dan fasilitas umum', items: [[9, 'Lampu Lalu Lintas'], [10, 'Hidran'], [11, 'Rambu Stop'], [12, 'Meter Parkir']]},
+      {title: 'Aksesori & Barang Bawaan', icon: 'backpack', description: 'Barang pribadi dan perlengkapan', items: [[24, 'Ransel'], [25, 'Payung'], [26, 'Tas Tangan'], [27, 'Dasi'], [28, 'Koper']]},
+      {title: 'Olahraga & Rekreasi', icon: 'sports_basketball', description: 'Peralatan dan objek aktivitas olahraga', items: [[29, 'Frisbee'], [30, 'Ski'], [31, 'Snowboard'], [32, 'Bola'], [33, 'Layang-layang'], [34, 'Pemukul Bisbol'], [35, 'Sarung Tangan Bisbol'], [36, 'Skateboard'], [37, 'Papan Selancar'], [38, 'Raket Tenis']]},
+      {title: 'Makanan & Minuman', icon: 'restaurant', description: 'Makanan, bahan pangan, dan wadah minum', items: [[39, 'Botol'], [40, 'Gelas Anggur'], [41, 'Cangkir'], [42, 'Garpu'], [43, 'Pisau'], [44, 'Sendok'], [45, 'Mangkuk'], [46, 'Pisang'], [47, 'Apel'], [48, 'Roti Isi'], [49, 'Jeruk'], [50, 'Brokoli'], [51, 'Wortel'], [52, 'Hot Dog'], [53, 'Pizza'], [54, 'Donat'], [55, 'Kue']]},
+      {title: 'Perabotan', icon: 'chair', description: 'Furnitur dan perlengkapan ruang', items: [[13, 'Bangku'], [56, 'Kursi'], [57, 'Sofa'], [58, 'Tanaman Pot'], [59, 'Tempat Tidur'], [60, 'Meja Makan']]},
+      {title: 'Elektronik', icon: 'devices', description: 'Perangkat elektronik dan peralatan dapur', items: [[62, 'Televisi'], [63, 'Laptop'], [64, 'Mouse'], [65, 'Remote'], [66, 'Keyboard'], [67, 'Ponsel'], [68, 'Microwave'], [69, 'Oven'], [70, 'Pemanggang Roti']]},
+      {title: 'Perlengkapan Rumah & Lainnya', icon: 'home', description: 'Perlengkapan rumah dan benda sehari-hari', items: [[61, 'Toilet'], [71, 'Wastafel'], [72, 'Kulkas'], [73, 'Buku'], [74, 'Jam'], [75, 'Vas'], [76, 'Gunting'], [77, 'Boneka Beruang'], [78, 'Pengering Rambut'], [79, 'Sikat Gigi']]}
+    ];
+    var classGroups = categories.map(function(category, index) {
+      category.key = 'coco-category-' + index;
+      category.ids = category.items.map(function(item) { return item[0]; });
+      return category;
+    });
+    var selectedIds = new Set();
+
+    function createCategoryCard(category) {
+      var card = document.createElement('article');
+      card.className = 'rounded-2xl bg-surface-card p-space-md shadow-sm';
+      var header = document.createElement('div');
+      header.className = 'flex items-center justify-between gap-space-sm';
+      var identity = document.createElement('div');
+      identity.className = 'flex min-w-0 items-center gap-space-sm';
+      var iconWrap = document.createElement('div');
+      iconWrap.className = 'flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-surface-tint-cyan text-primary';
+      var icon = document.createElement('span');
+      icon.className = 'material-symbols-outlined text-[24px]';
+      icon.textContent = category.icon;
+      iconWrap.appendChild(icon);
+      var copy = document.createElement('div');
+      copy.className = 'min-w-0';
+      var title = document.createElement('h3');
+      title.className = 'font-title-md text-title-md text-on-surface';
+      title.textContent = category.title;
+      var description = document.createElement('p');
+      description.className = 'font-body-sm text-body-sm text-on-surface-variant';
+      description.textContent = category.description;
+      copy.append(title, description);
+      identity.append(iconWrap, copy);
+
+      var toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full bg-surface-container-highest p-0.5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary';
+      toggle.setAttribute('role', 'switch');
+      toggle.setAttribute('aria-label', 'Pilih semua kelas ' + category.title);
+      toggle.setAttribute('aria-checked', 'false');
+      toggle.dataset.categoryToggle = category.key;
+      var knob = document.createElement('span');
+      knob.className = 'pointer-events-none flex h-6 w-6 translate-x-0 transform items-center justify-center rounded-full bg-surface-card shadow-sm transition';
+      var check = document.createElement('span');
+      check.className = 'material-symbols-outlined hidden text-[14px] font-bold text-primary';
+      check.textContent = 'check';
+      knob.appendChild(check);
+      toggle.appendChild(knob);
+      header.append(identity, toggle);
+
+      var chips = document.createElement('div');
+      chips.className = 'mt-space-md flex flex-wrap gap-2 border-t border-surface-container pt-space-sm';
+      category.items.forEach(function(item) {
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'chip-item inline-flex items-center gap-1 rounded-full bg-surface-container-high px-3 py-1.5 font-label-md text-label-md text-on-surface transition-colors';
+        chip.dataset.classId = String(item[0]);
+        chip.dataset.active = 'false';
+        chip.setAttribute('aria-pressed', 'false');
+        var chipCheck = document.createElement('span');
+        chipCheck.className = 'material-symbols-outlined hidden text-[16px]';
+        chipCheck.textContent = 'check';
+        var label = document.createElement('span');
+        label.textContent = item[1];
+        chip.append(chipCheck, label);
+        chips.appendChild(chip);
+      });
+      card.append(header, chips);
+      return card;
+    }
+
+    function syncSettingsControls() {
+      if (!categoryContainer) return;
+      categoryContainer.querySelectorAll('.chip-item[data-class-id]').forEach(function(chip) {
+        var active = selectedIds.has(Number(chip.dataset.classId));
+        chip.dataset.active = active ? 'true' : 'false';
+        chip.setAttribute('aria-pressed', active ? 'true' : 'false');
+        chip.classList.toggle('bg-primary', active);
+        chip.classList.toggle('text-on-primary', active);
+        chip.classList.toggle('shadow-sm', active);
+        chip.classList.toggle('bg-surface-container-high', !active);
+        chip.classList.toggle('text-on-surface', !active);
+        var check = chip.querySelector('.material-symbols-outlined');
+        check.classList.toggle('hidden', !active);
+      });
+      classGroups.forEach(function(category) {
+        var toggle = categoryContainer.querySelector('[data-category-toggle="' + category.key + '"]');
+        var allSelected = category.ids.every(function(id) { return selectedIds.has(id); });
+        toggle.setAttribute('aria-checked', allSelected ? 'true' : 'false');
+        var knob = toggle.querySelector('span');
+        toggle.classList.toggle('bg-primary', allSelected);
+        toggle.classList.toggle('bg-surface-container-highest', !allSelected);
+        knob.classList.toggle('translate-x-5', allSelected);
+        knob.classList.toggle('translate-x-0', !allSelected);
+        knob.querySelector('.material-symbols-outlined').classList.toggle('hidden', !allSelected);
+      });
+    }
+
+    function selectedClassIds() {
+      return Array.from(selectedIds).sort(function(a, b) { return a - b; });
+    }
+
+    if (categoryContainer) {
+      categoryContainer.replaceChildren.apply(
+        categoryContainer,
+        classGroups.map(createCategoryCard)
+      );
+      categoryContainer.addEventListener('click', function(event) {
+        var chip = event.target.closest('.chip-item[data-class-id]');
+        if (chip) {
+          var id = Number(chip.dataset.classId);
+          if (selectedIds.has(id)) selectedIds.delete(id);
+          else selectedIds.add(id);
+          syncSettingsControls();
+          return;
+        }
+        var toggle = event.target.closest('[data-category-toggle]');
+        if (!toggle) return;
+        var category = classGroups.find(function(item) { return item.key === toggle.dataset.categoryToggle; });
+        var allSelected = category.ids.every(function(id) { return selectedIds.has(id); });
+        category.ids.forEach(function(id) {
+          if (allSelected) selectedIds.delete(id);
+          else selectedIds.add(id);
+        });
+        syncSettingsControls();
+      });
+
+      fetch('/api/settings', {cache: 'no-store'})
+        .then(function(response) {
+          if (!response.ok) throw new Error('Gagal memuat pengaturan deteksi.');
+          return response.json();
+        })
+        .then(function(config) {
+          if (!Array.isArray(config.classes) || typeof config.confidence !== 'number') {
+            throw new Error('Format pengaturan deteksi tidak valid.');
+          }
+          selectedIds = new Set(config.classes);
+          syncSettingsControls();
+          range.value = String(Math.round(config.confidence * 100));
+          rangeVal.textContent = range.value + '%';
+        })
+        .catch(function(error) { window.showToast(error.message); });
+
+      document.getElementById('save-settings').addEventListener('click', async function() {
+        var button = this;
+        button.disabled = true;
+        try {
+          var response = await fetch('/api/settings', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              classes: selectedClassIds(),
+              confidence: Number(range.value) / 100
+            })
+          });
+          var result = await response.json();
+          if (!response.ok) throw new Error(result.error || 'Gagal menyimpan pengaturan.');
+          selectedIds = new Set(result.classes);
+          syncSettingsControls();
+          window.showToast('Pengaturan deteksi berhasil disimpan');
+        } catch (error) {
+          window.showToast(error.message);
+        } finally {
+          button.disabled = false;
+        }
+      });
+    }
+
+    // AI Model Change
+    var modelSelect = document.getElementById('ai-model-select');
+    if (modelSelect) {
+      modelSelect.addEventListener('change', function() {
+        window.showToast('Model AI diubah ke ' + modelSelect.options[modelSelect.selectedIndex].text.split(' - ')[0]);
+      });
+    }
+  })();
+</script></main><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.06)]" data-active-classes="text-primary [&amp;&gt;div]:bg-surface-tint-cyan [&amp;&gt;div]:text-primary font-bold"><div class="flex justify-around items-center h-16 px-space-sm"><a class="flex flex-col items-center justify-center gap-1 w-20 min-h-[44px] text-on-surface-variant transition-colors" data-path="beranda" href="/"><div class="px-space-md py-space-xs rounded-full flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[24px]">dashboard</span></div><span class="font-label-sm text-label-sm tracking-normal">Beranda</span></a><a class="flex flex-col items-center justify-center gap-1 w-20 min-h-[44px] text-on-surface-variant transition-colors" data-path="riwayat" href="/history"><div class="px-space-md py-space-xs rounded-full flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[24px]">history</span></div><span class="font-label-sm text-label-sm tracking-normal">Riwayat</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-1 w-20 min-h-[44px] transition-colors text-primary [&amp;&gt;div]:bg-surface-tint-cyan [&amp;&gt;div]:text-primary font-bold" data-path="pengaturan" href="/settings"><div class="px-space-md py-space-xs rounded-full flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[24px]">settings</span></div><span class="font-label-sm text-label-sm tracking-normal">Pengaturan</span></a></div></nav></body></html>

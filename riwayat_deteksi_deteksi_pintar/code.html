@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+  <title>Riwayat Deteksi Pintar</title>
+  <style>
+    :root { font-family: Inter, Arial, sans-serif; color: #191c1d; background: #f8f9fa; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; padding: 76px 16px 88px; }
+    header { position: fixed; inset: 0 0 auto; z-index: 2; height: 64px; display: flex; align-items: center; padding: 0 20px; background: #ffffffed; box-shadow: 0 1px 8px #0000000a; }
+    header h1 { margin: 0; color: #006161; font-size: 18px; }
+    main { width: min(100%, 640px); margin: 0 auto; }
+    h2 { margin: 8px 0 16px; font-size: 22px; }
+    #history-status { margin: 0 0 12px; color: #6e7979; font-size: 14px; }
+    #history-list { display: grid; gap: 12px; }
+    .empty-state, .log-card { padding: 24px; border-radius: 20px; background: #fff; box-shadow: 0 4px 16px #0e7c7b10; }
+    .empty-state { text-align: center; color: #3e4948; }
+    .empty-state .icon { display: block; margin-bottom: 8px; color: #006161; font-size: 32px; }
+    .empty-state p { margin: 0; font-weight: 600; }
+    .log-card h3 { margin: 0 0 6px; color: #006161; font-size: 16px; }
+    .log-card time { color: #6e7979; font-size: 13px; }
+    .log-card .total { float: right; font-weight: 700; color: #006161; }
+    .counts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .count { padding: 6px 10px; border-radius: 999px; background: #e0f2f1; color: #00504f; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+    .log-header { display: flex; align-items: flex-start; gap: 12px; }
+    .log-heading { flex: 1; min-width: 0; }
+    .log-card { cursor: pointer; }
+    .log-card:focus-visible { outline: 3px solid #006161; outline-offset: 2px; }
+    .log-details { margin-top: 14px; padding-top: 14px; border-top: 1px solid #e7e8e9; }
+    .detail-timestamp { margin: 0; color: #3e4948; font-size: 13px; overflow-wrap: anywhere; }
+    .detail-label { margin: 0 0 8px; color: #3e4948; font-size: 13px; font-weight: 700; }
+    .log-card .notes { margin: 14px 0 0; padding: 10px 12px; border-radius: 12px; background: #f2f4f5; color: #3e4948; font-size: 14px; overflow-wrap: anywhere; }
+    .delete-button { display: grid; width: 40px; height: 40px; flex: 0 0 auto; place-items: center; border: 0; border-radius: 50%; background: #ffdad6; color: #ba1a1a; cursor: pointer; }
+    .delete-button:hover { background: #ba1a1a; color: #fff; }
+    .load-error { color: #ba1a1a !important; }
+    nav { position: fixed; inset: auto 0 0; z-index: 2; padding: 0 0 max(0px, env(safe-area-inset-bottom)); background: #ffffffed; box-shadow: 0 -4px 20px #0000000f; backdrop-filter: blur(16px); }
+    .nav-items { display: flex; height: 64px; justify-content: space-around; align-items: center; padding: 0 8px; }
+    nav a { display: flex; width: 80px; min-height: 44px; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #3e4948; font-size: 10px; text-align: center; text-decoration: none; }
+    nav a .icon-wrap { display: flex; align-items: center; justify-content: center; padding: 4px 16px; border-radius: 999px; transition: background-color .15s; }
+    nav a .material-symbols-outlined { font-size: 24px; }
+    nav a[aria-current="page"] { color: #006161; font-weight: 700; }
+    nav a[aria-current="page"] .icon-wrap { background: #e0f2f1; }
+    dialog { width: min(90vw, 360px); padding: 24px; border: 0; border-radius: 20px; color: #191c1d; box-shadow: 0 16px 48px #0003; }
+    dialog::backdrop { background: #191c1d80; backdrop-filter: blur(3px); }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+    .dialog-actions button { padding: 10px 14px; border: 0; border-radius: 10px; cursor: pointer; }
+    #confirm-delete { background: #ba1a1a; color: white; }
+  </style>
+</head>
+<body>
+  <header><h1>Deteksi Pintar · Riwayat</h1></header>
+  <main>
+    <h2>Riwayat Rekaman Log</h2>
+    <p id="history-status" aria-live="polite">Memuat riwayat...</p>
+    <section id="history-list" aria-live="polite">
+      <div class="empty-state"><span class="icon" aria-hidden="true">▤</span><p>Belum Ada Riwayat Rekaman Log</p></div>
+    </section>
+  </main>
+  <nav aria-label="Navigasi utama">
+    <div class="nav-items">
+      <a href="/home"><span class="icon-wrap"><span class="material-symbols-outlined">dashboard</span></span><span>Beranda</span></a>
+      <a href="/history" aria-current="page"><span class="icon-wrap"><span class="material-symbols-outlined">history</span></span><span>Riwayat</span></a>
+      <a href="/settings"><span class="icon-wrap"><span class="material-symbols-outlined">settings</span></span><span>Pengaturan</span></a>
+    </div>
+  </nav>
+
+  <dialog id="delete-dialog" aria-labelledby="delete-dialog-title">
+    <h2 id="delete-dialog-title">Hapus log?</h2>
+    <p>Apakah Anda yakin ingin menghapus log ini?</p>
+    <div class="dialog-actions">
+      <button id="cancel-delete" type="button">Batal</button>
+      <button id="confirm-delete" type="button">Hapus</button>
+    </div>
+  </dialog>
+
+  <script>
+    (function() {
+      const list = document.getElementById('history-list');
+      const status = document.getElementById('history-status');
+      const deleteDialog = document.getElementById('delete-dialog');
+      const confirmDelete = document.getElementById('confirm-delete');
+      const cancelDelete = document.getElementById('cancel-delete');
+      
+      let logs = [];
+      let selectedLogId = null;
+
+      function formatDate(value) {
+        if (!value) return 'Waktu baru saja';
+        const date = new Date(value);
+        return Number.isNaN(date.getTime())
+          ? 'Waktu tidak diketahui'
+          : new Intl.DateTimeFormat('id-ID', {
+              dateStyle: 'medium',
+              timeStyle: 'short'
+            }).format(date);
+      }
+
+      function createLogCard(log, index) {
+        const card = document.createElement('article');
+        card.className = 'log-card';
+        card.dataset.logId = log.id;
+        card.tabIndex = 0;
+
+        const header = document.createElement('div');
+        header.className = 'log-header';
+        const headingGroup = document.createElement('div');
+        headingGroup.className = 'log-heading';
+        
+        // Tangkap durasi jika ada
+        const durationText = log.duration ? ' (' + log.duration + ')' : '';
+        const heading = document.createElement('h3');
+        heading.textContent = 'Rekaman #' + (index + 1) + durationText;
+        
+        // Ambil timestamp baik dari created_at, ended_at, atau timestamp
+        const timestamp = log.created_at || log.ended_at || log.timestamp;
+        const date = document.createElement('time');
+        date.dateTime = timestamp || '';
+        date.textContent = formatDate(timestamp);
+        
+        // Hitung total objek
+        const countsObj = log.counts || {};
+        const totalNum = typeof log.total === 'number' 
+          ? log.total 
+          : Object.values(countsObj).reduce((a, b) => a + (Number(b) || 0), 0);
+        
+        const total = document.createElement('span');
+        total.className = 'total';
+        total.textContent = totalNum + ' objek';
+        
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'delete-button';
+        deleteButton.dataset.deleteId = log.id;
+        deleteButton.setAttribute('aria-label', 'Hapus log');
+        const deleteIcon = document.createElement('span');
+        deleteIcon.className = 'material-symbols-outlined';
+        deleteIcon.textContent = 'delete';
+        deleteButton.appendChild(deleteIcon);
+        
+        const counts = document.createElement('div');
+        counts.className = 'counts';
+
+        // Render semua objek yang terdeteksi di dalam JSON (Person, Cell Phone, dll)
+        if (typeof countsObj === 'object' && countsObj !== null) {
+          Object.keys(countsObj).forEach(function(name) {
+            const countVal = Number(countsObj[name]) || 0;
+            if (countVal > 0) {
+              const badge = document.createElement('span');
+              badge.className = 'count';
+              badge.textContent = name + ': ' + countVal;
+              counts.appendChild(badge);
+            }
+          });
+        }
+
+        if (counts.children.length === 0) {
+          const badge = document.createElement('span');
+          badge.className = 'count';
+          badge.textContent = 'Tidak ada objek spesifik';
+          counts.appendChild(badge);
+        }
+
+        headingGroup.append(heading, date);
+        header.append(headingGroup, total, deleteButton);
+        
+        const notes = document.createElement('p');
+        notes.className = 'notes';
+        const notesLabel = document.createElement('strong');
+        notesLabel.textContent = 'Catatan: ';
+        notes.append(notesLabel, document.createTextNode(log.notes || 'Tidak ada catatan.'));
+        
+        if (log.location && log.location.trim() && log.location !== 'Lokasi tidak diisi') {
+          const locP = document.createElement('p');
+          locP.style.cssText = 'margin: 6px 0 0; color: #6e7979; font-size: 13px;';
+          locP.innerHTML = '<strong>Lokasi:</strong> ' + log.location;
+          notes.appendChild(locP);
+        }
+
+        const details = document.createElement('div');
+        details.className = 'log-details';
+        details.hidden = true;
+        const exactTimestampLabel = document.createElement('p');
+        exactTimestampLabel.className = 'detail-label';
+        exactTimestampLabel.textContent = 'Tanggal & waktu';
+        const exactTimestamp = document.createElement('p');
+        exactTimestamp.className = 'detail-timestamp';
+        exactTimestamp.textContent = formatDate(timestamp);
+        const countsLabel = document.createElement('p');
+        countsLabel.className = 'detail-label';
+        countsLabel.style.marginTop = '14px';
+        countsLabel.textContent = 'Rincian objek';
+        
+        details.append(exactTimestampLabel, exactTimestamp, countsLabel, counts, notes);
+        card.append(header, details);
+        return card;
+      }
+
+      function renderLogs() {
+          if (!Array.isArray(logs) || logs.length === 0) {
+            list.innerHTML = '<div class="empty-state"><span class="icon" aria-hidden="true">▤</span><p>Belum Ada Riwayat Rekaman Log</p></div>';
+            status.textContent = '0 rekaman tersimpan';
+            return;
+          }
+
+          const fragment = document.createDocumentFragment();
+          // Render dari yang paling baru
+          logs.slice().reverse().forEach(function(log, idx) {
+            fragment.appendChild(createLogCard(log, logs.length - 1 - idx));
+          });
+          list.replaceChildren(fragment);
+          status.textContent = logs.length + ' rekaman tersimpan';
+      }
+
+      // Ambil data log dari API
+      fetch('/api/logs?t=' + Date.now(), { cache: 'no-store' })
+        .then(function(response) {
+          if (!response.ok) throw new Error('Gagal mengambil riwayat log.');
+          return response.json();
+        })
+        .then(function(result) {
+          // Tangkap respons baik dalam bentuk Array langsung maupun { logs: [...] }
+          if (Array.isArray(result)) {
+            logs = result;
+          } else if (result && Array.isArray(result.logs)) {
+            logs = result.logs;
+          } else {
+            logs = [];
+          }
+          renderLogs();
+        })
+        .catch(function(error) {
+          status.textContent = error.message;
+          status.classList.add('load-error');
+        });
+
+      list.addEventListener('click', function(event) {
+        const button = event.target.closest('[data-delete-id]');
+        if (button) {
+          event.stopPropagation();
+          selectedLogId = button.dataset.deleteId;
+          deleteDialog.showModal();
+          return;
+        }
+        const card = event.target.closest('.log-card');
+        if (!card) return;
+        const details = card.querySelector('.log-details');
+        details.hidden = !details.hidden;
+      });
+
+      cancelDelete.addEventListener('click', function() {
+        selectedLogId = null;
+        deleteDialog.close();
+      });
+
+      confirmDelete.addEventListener('click', async function() {
+        if (!selectedLogId) return;
+        confirmDelete.disabled = true;
+        try {
+          const response = await fetch('/api/logs/' + encodeURIComponent(selectedLogId), {
+            method: 'DELETE'
+          });
+          if (!response.ok) throw new Error('Gagal menghapus log.');
+          logs = logs.filter(function(log) { return log.id !== selectedLogId; });
+          selectedLogId = null;
+          deleteDialog.close();
+          renderLogs();
+        } catch (error) {
+          window.alert(error.message);
+        } finally {
+          confirmDelete.disabled = false;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
