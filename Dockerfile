@@ -18,5 +18,6 @@ COPY . .
 
 RUN curl -L https://github.com/ultralytics/assets/releases/download/v8.4.0/yolov8n.pt -o /app/yolov8n.pt
 
-# Hapus EXPOSE statis atau biarkan, lalu gunakan port dinamis $PORT dari Railway
-CMD gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 8 app:app
+EXPOSE 8080
+
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:8080 --workers 1 --threads 8 app:app"]
