@@ -15,15 +15,13 @@ from supabase import create_client, Client
 
 app = Flask(__name__)
 
-# Muat model YOLO dari file lokal dengan aman
-model_path = os.path.join(os.path.dirname(__file__), "yolov8n.pt")
-model = YOLO(model_path)
+# Set environment config direktori ke /tmp agar aman di server cloud
+os.environ['YOLOV8_CONFIG_DIR'] = '/tmp/ultralytics'
+os.environ['ULTRALYTICS_CONFIG_DIR'] = '/tmp/ultralytics'
 
 # Ambil URL dan API Key dari Environment Variables
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
-
-# Buat koneksi client ke Supabase jika URL dan KEY tersedia
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY) if (SUPABASE_URL and SUPABASE_KEY) else None
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -34,6 +32,15 @@ LOGGER = logging.getLogger(__name__)
 
 app_config = {"classes": [0, 2, 3, 5, 7], "confidence": 0.50}
 APP_CONFIG_LOCK = threading.Lock()
+
+# Lazy Loading Model YOLO untuk mencegah timeout saat server boot
+_model_instance = None
+def get_model():
+    global _model_instance
+    if _model_instance is None:
+        model_path = os.path.join(os.path.dirname(__file__), "yolov8n.pt")
+        _model_instance = YOLO(model_path)
+    return _model_instance
 
 
 @app.get("/")
@@ -119,14 +126,16 @@ def predict():
             classes = app_config["classes"]
             conf = app_config["confidence"]
 
-        results = model(img, classes=classes, conf=conf, verbose=False)[0]
+        # Panggil model secara lazy-loaded
+        model_inst = get_model()
+        results = model_inst(img, classes=classes, conf=conf, verbose=False)[0]
 
         detections = []
         counts_dict = {}
 
         for box in results.boxes:
             cls_id = int(box.cls[0])
-            name = model.names[cls_id]
+            name = model_inst.names[cls_id]
             confidence_val = float(box.conf[0])
             xyxy = box.xyxy[0].tolist()
 
@@ -150,7 +159,6 @@ def predict():
         return jsonify({'error': str(e)}), 500
 
 
-# --- LOG LOKAL (logs.json) & SUPABASE ---
 def read_logs_from_file():
     if not LOG_FILE_PATH.exists():
         return []
