@@ -207,33 +207,29 @@ class CameraDetector:
 detector = CameraDetector()
 
 
-def serve_page(directory):
-    return send_from_directory(UI_DIR / directory, "code.html")
+def serve_page(directory, filename):
+    return send_from_directory(UI_DIR / directory, filename)
 
 
 @app.get("/")
+@app.get("/home")
 def home():
-    return serve_page("beranda_deteksi_pintar")
+    return send_from_directory(UI_DIR, "index.html")
 
 
 @app.get("/camera")
 def camera():
-    return serve_page("kamera_deteksi_pintar")
-
-
-@app.get("/home")
-def home_alias():
-    return serve_page("beranda_deteksi_pintar")
+    return serve_page("kamera_deteksi_pintar", "kamera.html")
 
 
 @app.get("/settings")
 def settings():
-    return serve_page("pengaturan_deteksi_pintar")
+    return serve_page("pengaturan_deteksi_pintar", "pengaturan.html")
 
 
 @app.get("/history")
 def history():
-    return serve_page("riwayat_deteksi_deteksi_pintar")
+    return serve_page("riwayat_deteksi_deteksi_pintar", "riwayat.html")
 
 
 @app.get("/api/counts")
@@ -333,94 +329,7 @@ def predict():
         return jsonify({'error': str(e)}), 500
 
 
-# --- FILE PATH LOGS LOKAL PASTI ---
-LOG_FILE_PATH = BASE_DIR / "logs.json"
-
-def get_all_logs_safe():
-    if not LOG_FILE_PATH.exists():
-        return []
-    try:
-        with open(LOG_FILE_PATH, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            return data if isinstance(data, list) else []
-    except Exception:
-        return []
-
-@app.get("/api/logs")
-def get_logs():
-    logs_data = get_all_logs_safe()
-    
-    # Jika Supabase aktif dan memiliki data, gunakan Supabase
-    if supabase:
-        try:
-            res = supabase.table("logs").select("*").order("created_at", desc=True).execute()
-            if res.data and len(res.data) > 0:
-                supa_list = []
-                for item in res.data:
-                    supa_list.append({
-                        "id": str(item.get("id", uuid4())),
-                        "ended_at": item.get("created_at", datetime.now(timezone.utc).isoformat()),
-                        "created_at": item.get("created_at", datetime.now(timezone.utc).isoformat()),
-                        "counts": item.get("counts", {}),
-                        "notes": item.get("notes", ""),
-                        "location": item.get("location", ""),
-                        "duration": item.get("duration", "00:00")
-                    })
-                return jsonify(supa_list)
-        except Exception as e:
-            LOGGER.warning("Gagal baca Supabase: %s", e)
-
-    # Selalu return array lokal jika Supabase kosong/error
-    return jsonify(logs_data)
-
-
-@app.post("/api/save_log")
-def save_log():
-    try:
-        data = request.get_json() or {}
-        if data.get("action") == "stop":
-            counts_payload = data.get("counts", {})
-            notes = data.get("notes", "")
-            location = data.get("location", "")
-            duration = data.get("duration", "00:00")
-            now_iso = datetime.now(timezone.utc).isoformat()
-
-            new_entry = {
-                "id": str(uuid4()),
-                "ended_at": now_iso,
-                "created_at": now_iso,
-                "counts": counts_payload,
-                "notes": notes,
-                "location": location,
-                "duration": duration,
-                "total": sum(counts_payload.values()) if isinstance(counts_payload, dict) else 0
-            }
-
-            # 1. PAKSA TULIS LANGSUNG KE FILE LOKAL LOGS.JSON
-            existing_logs = get_all_logs_safe()
-            existing_logs.append(new_entry)
-            
-            with open(LOG_FILE_PATH, "w", encoding="utf-8") as f:
-                json.dump(existing_logs, f, ensure_ascii=False, indent=2)
-
-            # 2. KIRIM KE SUPABASE JIKA ADA
-            if supabase:
-                try:
-                    supabase.table("logs").insert({
-                        "counts": counts_payload,
-                        "notes": notes,
-                        "location": location,
-                        "duration": duration
-                    }).execute()
-                except Exception as se:
-                    LOGGER.warning("Gagal kirim Supabase: %s", se)
-
-            return jsonify({"status": "success", "message": "Log tersimpan!"})
-
-        return jsonify({"status": "ok"})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
+# --- LOG LOKAL (logs.json) ---
 def read_logs_from_file():
     if not LOG_FILE_PATH.exists():
         return []
@@ -431,84 +340,88 @@ def read_logs_from_file():
     except Exception:
         return []
 
-@app.route('/api/logs', methods=['GET'])
+
+def write_logs_to_file(logs):
+    tmp_path = LOG_FILE_PATH.with_suffix(".json.tmp")
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        json.dump(logs, f, ensure_ascii=False, indent=2)
+    os.replace(tmp_path, LOG_FILE_PATH)  # penulisan atomik
+
+
+@app.get("/api/logs")
 def get_logs():
     try:
-        # 1. Selalu baca dari file lokal logs.json terlebih dahulu
-        logs_data = read_logs_from_file()
+        with LOG_LOCK:
+            logs_data = read_logs_from_file()
 
-        # 2. Jika Supabase aktif dan berisi data, gabungkan / utamakan Supabase
         if supabase:
             try:
                 res = supabase.table("logs").select("*").order("created_at", desc=True).execute()
-                if res.data and len(res.data) > 0:
+                if res.data:
                     supa_list = []
                     for item in res.data:
+                        created = item.get("created_at") or datetime.now(timezone.utc).isoformat()
                         supa_list.append({
                             "id": str(item.get("id", uuid4())),
-                            "created_at": item.get("created_at", datetime.now(timezone.utc).isoformat()),
-                            "ended_at": item.get("created_at", datetime.now(timezone.utc).isoformat()),
+                            "created_at": created,
+                            "ended_at": created,
                             "counts": item.get("counts", {}),
                             "notes": item.get("notes", ""),
                             "location": item.get("location", ""),
-                            "duration": item.get("duration", "00:00")
+                            "duration": item.get("duration", "00:00"),
                         })
+                    # urutkan lama -> baru, karena riwayat.html membalik urutan
+                    supa_list.reverse()
                     return jsonify(supa_list)
             except Exception as se:
                 LOGGER.warning("Supabase read error: %s", se)
 
-        # Kembalikan daftar log lokal
         return jsonify(logs_data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
 @app.route('/api/save_log', methods=['POST'])
-def save_log():
+def save_api_log():
     try:
         data = request.get_json() or {}
-        action = data.get('action')
+        if data.get('action') != 'stop':
+            return jsonify({"status": "ok"})
 
-        if action == 'stop':
-            counts_payload = data.get('counts', {})
-            notes = data.get('notes', '')
-            location = data.get('location', 'Lokasi tidak diisi')
-            duration = data.get('duration', '00:00')
-            timestamp = datetime.now(timezone.utc).isoformat()
+        counts_payload = data.get('counts', {})
+        notes = data.get('notes', '')
+        location = data.get('location', 'Lokasi tidak diisi')
+        duration = data.get('duration', '00:00')
+        timestamp = datetime.now(timezone.utc).isoformat()
 
-            new_entry = {
-                "id": str(uuid4()),
-                "created_at": timestamp,
-                "ended_at": timestamp,
-                "counts": counts_payload,
-                "notes": notes,
-                "location": location,
-                "duration": duration,
-                "total": sum(counts_payload.values()) if isinstance(counts_payload, dict) else 0
-            }
+        new_entry = {
+            "id": str(uuid4()),
+            "created_at": timestamp,
+            "ended_at": timestamp,
+            "counts": counts_payload,
+            "notes": notes,
+            "location": location,
+            "duration": duration,
+            "total": sum(counts_payload.values()) if isinstance(counts_payload, dict) else 0,
+        }
 
-            # SELALU SIMPAN KE LOGS.JSON LOKAL
+        with LOG_LOCK:
             logs = read_logs_from_file()
             logs.append(new_entry)
-            with open(LOG_FILE_PATH, "w", encoding="utf-8") as f:
-                json.dump(logs, f, ensure_ascii=False, indent=2)
+            write_logs_to_file(logs)
 
-            # COBA SIMPAN KE SUPABASE (TANPA MELEMPARKAN EXCEPTION JIKA GAGAL)
-            if supabase:
-                try:
-                    supabase.table("logs").insert({
-                        "counts": counts_payload,
-                        "notes": notes,
-                        "location": location,
-                        "duration": duration
-                    }).execute()
-                except Exception as se:
-                    LOGGER.warning("Supabase insert error: %s", se)
+        if supabase:
+            try:
+                supabase.table("logs").insert({
+                    "counts": counts_payload,
+                    "notes": notes,
+                    "location": location,
+                    "duration": duration,
+                }).execute()
+            except Exception as se:
+                LOGGER.warning("Supabase insert error: %s", se)
 
-            return jsonify({"status": "success", "message": "Log berhasil disimpan!"})
-
-        return jsonify({"status": "ok"})
-
+        return jsonify({"status": "success", "message": "Log berhasil disimpan!"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -516,10 +429,28 @@ def save_log():
 @app.delete("/api/logs/<log_id>")
 def delete_log(log_id):
     try:
+        deleted_local = False
+        deleted_remote = False
+
+        # 1. Hapus dari logs.json lokal
+        with LOG_LOCK:
+            logs = read_logs_from_file()
+            remaining = [l for l in logs if str(l.get("id")) != str(log_id)]
+            if len(remaining) != len(logs):
+                write_logs_to_file(remaining)
+                deleted_local = True
+
+        # 2. Hapus dari Supabase (jika aktif); kegagalan tidak membatalkan hapus lokal
         if supabase:
-            supabase.table("logs").delete().eq("id", log_id).execute()
+            try:
+                res = supabase.table("logs").delete().eq("id", log_id).execute()
+                deleted_remote = bool(res.data)
+            except Exception as se:
+                LOGGER.warning("Supabase delete error: %s", se)
+
+        if deleted_local or deleted_remote:
             return jsonify({"status": "deleted", "id": log_id})
-        return jsonify({"error": "Supabase tidak terkonfigurasi."}), 400
+        return jsonify({"error": "Log tidak ditemukan."}), 404
     except Exception as e:
         LOGGER.exception("Could not delete detection log %s", log_id)
         return jsonify({"error": str(e)}), 500

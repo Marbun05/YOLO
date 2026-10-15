@@ -47,6 +47,7 @@
     .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
     .dialog-actions button { padding: 10px 14px; border: 0; border-radius: 10px; cursor: pointer; }
     #confirm-delete { background: #ba1a1a; color: white; }
+    #confirm-delete:disabled { opacity: .6; cursor: wait; }
   </style>
 </head>
 <body>
@@ -82,7 +83,7 @@
       const deleteDialog = document.getElementById('delete-dialog');
       const confirmDelete = document.getElementById('confirm-delete');
       const cancelDelete = document.getElementById('cancel-delete');
-      
+
       let logs = [];
       let selectedLogId = null;
 
@@ -107,28 +108,25 @@
         header.className = 'log-header';
         const headingGroup = document.createElement('div');
         headingGroup.className = 'log-heading';
-        
-        // Tangkap durasi jika ada
+
         const durationText = log.duration ? ' (' + log.duration + ')' : '';
         const heading = document.createElement('h3');
         heading.textContent = 'Rekaman #' + (index + 1) + durationText;
-        
-        // Ambil timestamp baik dari created_at, ended_at, atau timestamp
+
         const timestamp = log.created_at || log.ended_at || log.timestamp;
         const date = document.createElement('time');
         date.dateTime = timestamp || '';
         date.textContent = formatDate(timestamp);
-        
-        // Hitung total objek
+
         const countsObj = log.counts || {};
-        const totalNum = typeof log.total === 'number' 
-          ? log.total 
+        const totalNum = typeof log.total === 'number'
+          ? log.total
           : Object.values(countsObj).reduce((a, b) => a + (Number(b) || 0), 0);
-        
+
         const total = document.createElement('span');
         total.className = 'total';
         total.textContent = totalNum + ' objek';
-        
+
         const deleteButton = document.createElement('button');
         deleteButton.type = 'button';
         deleteButton.className = 'delete-button';
@@ -138,11 +136,10 @@
         deleteIcon.className = 'material-symbols-outlined';
         deleteIcon.textContent = 'delete';
         deleteButton.appendChild(deleteIcon);
-        
+
         const counts = document.createElement('div');
         counts.className = 'counts';
 
-        // Render semua objek yang terdeteksi di dalam JSON (Person, Cell Phone, dll)
         if (typeof countsObj === 'object' && countsObj !== null) {
           Object.keys(countsObj).forEach(function(name) {
             const countVal = Number(countsObj[name]) || 0;
@@ -164,17 +161,20 @@
 
         headingGroup.append(heading, date);
         header.append(headingGroup, total, deleteButton);
-        
+
         const notes = document.createElement('p');
         notes.className = 'notes';
         const notesLabel = document.createElement('strong');
         notesLabel.textContent = 'Catatan: ';
         notes.append(notesLabel, document.createTextNode(log.notes || 'Tidak ada catatan.'));
-        
+
+        // PERBAIKAN 1: lokasi pakai textContent (bukan innerHTML) agar aman dari XSS
         if (log.location && log.location.trim() && log.location !== 'Lokasi tidak diisi') {
           const locP = document.createElement('p');
           locP.style.cssText = 'margin: 6px 0 0; color: #6e7979; font-size: 13px;';
-          locP.innerHTML = '<strong>Lokasi:</strong> ' + log.location;
+          const locLabel = document.createElement('strong');
+          locLabel.textContent = 'Lokasi: ';
+          locP.append(locLabel, document.createTextNode(log.location));
           notes.appendChild(locP);
         }
 
@@ -191,36 +191,33 @@
         countsLabel.className = 'detail-label';
         countsLabel.style.marginTop = '14px';
         countsLabel.textContent = 'Rincian objek';
-        
+
         details.append(exactTimestampLabel, exactTimestamp, countsLabel, counts, notes);
         card.append(header, details);
         return card;
       }
 
       function renderLogs() {
-          if (!Array.isArray(logs) || logs.length === 0) {
-            list.innerHTML = '<div class="empty-state"><span class="icon" aria-hidden="true">▤</span><p>Belum Ada Riwayat Rekaman Log</p></div>';
-            status.textContent = '0 rekaman tersimpan';
-            return;
-          }
+        if (!Array.isArray(logs) || logs.length === 0) {
+          list.innerHTML = '<div class="empty-state"><span class="icon" aria-hidden="true">▤</span><p>Belum Ada Riwayat Rekaman Log</p></div>';
+          status.textContent = '0 rekaman tersimpan';
+          return;
+        }
 
-          const fragment = document.createDocumentFragment();
-          // Render dari yang paling baru
-          logs.slice().reverse().forEach(function(log, idx) {
-            fragment.appendChild(createLogCard(log, logs.length - 1 - idx));
-          });
-          list.replaceChildren(fragment);
-          status.textContent = logs.length + ' rekaman tersimpan';
+        const fragment = document.createDocumentFragment();
+        logs.slice().reverse().forEach(function(log, idx) {
+          fragment.appendChild(createLogCard(log, logs.length - 1 - idx));
+        });
+        list.replaceChildren(fragment);
+        status.textContent = logs.length + ' rekaman tersimpan';
       }
 
-      // Ambil data log dari API
       fetch('/api/logs?t=' + Date.now(), { cache: 'no-store' })
         .then(function(response) {
           if (!response.ok) throw new Error('Gagal mengambil riwayat log.');
           return response.json();
         })
         .then(function(result) {
-          // Tangkap respons baik dalam bentuk Array langsung maupun { logs: [...] }
           if (Array.isArray(result)) {
             logs = result;
           } else if (result && Array.isArray(result.logs)) {
@@ -261,12 +258,21 @@
           const response = await fetch('/api/logs/' + encodeURIComponent(selectedLogId), {
             method: 'DELETE'
           });
-          if (!response.ok) throw new Error('Gagal menghapus log.');
-          logs = logs.filter(function(log) { return log.id !== selectedLogId; });
+
+          // PERBAIKAN 2: tampilkan pesan error asli dari server
+          if (!response.ok) {
+            let msg = 'Gagal menghapus log.';
+            try { msg = (await response.json()).error || msg; } catch (e) {}
+            throw new Error(msg);
+          }
+
+          // PERBAIKAN 3: bandingkan ID sebagai string
+          logs = logs.filter(function(log) { return String(log.id) !== String(selectedLogId); });
           selectedLogId = null;
           deleteDialog.close();
           renderLogs();
         } catch (error) {
+          deleteDialog.close();
           window.alert(error.message);
         } finally {
           confirmDelete.disabled = false;
