@@ -2,9 +2,9 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-# Install dependensi sistem dasar untuk OpenCV & GUI headless
-RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
+# Perbarui dan instal dependensi sistem yang kompatibel dengan Debian slim terbaru
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1 \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
