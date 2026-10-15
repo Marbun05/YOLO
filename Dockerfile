@@ -1,19 +1,18 @@
-FROM python:3.11-slim
+FROM python:3.9-slim
 
-RUN apt-get update && apt-get install -y --no-install-recommends libglib2.0-0 \
+WORKDIR /app
+
+# Install dependensi sistem dasar untuk OpenCV & GUI headless
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN useradd -m -u 1000 user
-USER user
-ENV HOME=/home/user PATH=/home/user/.local/bin:$PATH \
-    HOST=0.0.0.0 PORT=7860 YOLO_CONFIG_DIR=/tmp/Ultralytics
-WORKDIR /home/user/app
-
-COPY --chown=user requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY --chown=user . .
-RUN python -c "from ultralytics import YOLO; YOLO('yolov8n.pt')"
+COPY . .
 
-EXPOSE 7860
-CMD ["python", "app.py"]
+EXPOSE 8080
+
+CMD gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 8 app:app
