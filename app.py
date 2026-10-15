@@ -15,7 +15,9 @@ from ultralytics import YOLO
 from supabase import create_client, Client
 
 app = Flask(__name__)
-model = YOLO('yolov8n.pt')
+import os
+model_path = os.path.join(os.path.dirname(__file__), "yolov8n.pt")
+model = YOLO(model_path)
 
 # Ambil URL dan API Key dari Environment Variables
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
