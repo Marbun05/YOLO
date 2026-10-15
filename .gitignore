@@ -1,3 +1,6 @@
 .vercel
 yolov8n.pt
-**/screen.png
+**/screen.png__pycache__/
+*.pyc
+venv/
+*.pt
