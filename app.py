@@ -1,21 +1,21 @@
-import base64
+import os
 import json
 import logging
-import os
+import base64
 import threading
-import time
 from datetime import datetime, timezone
 from pathlib import Path
-from uuid import NAMESPACE_URL, uuid4, uuid5
+from uuid import uuid4
 
 import cv2
 import numpy as np
-from flask import Flask, request, jsonify, send_from_directory, Response
+from flask import Flask, request, jsonify, send_from_directory
 from ultralytics import YOLO
 from supabase import create_client, Client
 
 app = Flask(__name__)
-import os
+
+# Muat model YOLO dari file lokal dengan aman
 model_path = os.path.join(os.path.dirname(__file__), "yolov8n.pt")
 model = YOLO(model_path)
 
@@ -28,189 +28,12 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY) if (SUPABASE_URL an
 
 BASE_DIR = Path(__file__).resolve().parent
 UI_DIR = BASE_DIR
-CONFIGURED_MODEL_PATH = os.environ.get("YOLO_MODEL_PATH")
-MODEL_CANDIDATES = (
-    BASE_DIR / "yolov8n.pt",
-    BASE_DIR.parent / "yolov8n.pt",
-    Path.home() / "proyek_yolo" / "yolov8n.pt",
-)
-CAMERA_INDEX = int(os.environ.get("CAMERA_INDEX", "0"))
-CAMERA_RETRIES = 3
-CAMERA_RETRY_DELAY = 0.5
-CLASS_NAMES = {0: "person", 2: "car", 3: "motorcycle", 7: "truck"}
-INITIAL_COUNTS = {name: 0 for name in CLASS_NAMES.values()}
+LOG_FILE_PATH = BASE_DIR / "logs.json"
+LOG_LOCK = threading.Lock()
+LOGGER = logging.getLogger(__name__)
+
 app_config = {"classes": [0, 2, 3, 5, 7], "confidence": 0.50}
 APP_CONFIG_LOCK = threading.Lock()
-LOGGER = logging.getLogger(__name__)
-LOG_PATH = BASE_DIR / "logs.json"
-LOG_LOCK = threading.Lock()
-LOG_FILE_PATH = BASE_DIR / "logs.json"
-
-def load_model():
-    if CONFIGURED_MODEL_PATH:
-        model_path = Path(CONFIGURED_MODEL_PATH).expanduser()
-        if not model_path.is_file():
-            raise FileNotFoundError(f"YOLO model file not found: {model_path}")
-        return YOLO(str(model_path))
-
-    for candidate in MODEL_CANDIDATES:
-        if candidate.is_file():
-            LOGGER.info("Loading YOLO model from %s", candidate)
-            return YOLO(str(candidate))
-
-    LOGGER.info("No local yolov8n.pt found; asking Ultralytics to resolve the model")
-    return YOLO("yolov8n.pt")
-
-
-def open_camera():
-    camera_indices = list(dict.fromkeys([CAMERA_INDEX, 0, 1, 2, 3]))
-    backends = [cv2.CAP_ANY]
-    if hasattr(cv2, "CAP_V4L2"):
-        backends.insert(0, cv2.CAP_V4L2)
-
-    for attempt in range(CAMERA_RETRIES):
-        for camera_index in camera_indices:
-            for backend in backends:
-                capture = cv2.VideoCapture(camera_index, backend)
-                if capture.isOpened():
-                    capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-                    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-                    capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-                    ok, frame = capture.read()
-                    if ok and frame is not None:
-                        LOGGER.info(
-                            "Opened webcam at index %s using backend %s",
-                            camera_index,
-                            backend,
-                        )
-                        return capture, frame
-                capture.release()
-
-        if attempt < CAMERA_RETRIES - 1:
-            LOGGER.warning(
-                "Could not open a readable webcam; retrying (%s/%s)",
-                attempt + 1,
-                CAMERA_RETRIES - 1,
-            )
-            time.sleep(CAMERA_RETRY_DELAY)
-
-    raise RuntimeError(
-        f"Could not open a readable webcam. Tried indices {camera_indices}; "
-        "check camera permissions or set CAMERA_INDEX."
-    )
-
-
-class CameraDetector:
-    def __init__(self):
-        self.condition = threading.Condition()
-        self.stream_lock = threading.Lock()
-        self.status = "idle"
-        self.error = None
-        self.counts = INITIAL_COUNTS.copy()
-        self.updated_at = None
-        self.recording_started_at = None
-
-    def snapshot(self):
-        with self.condition:
-            return {
-                "status": self.status,
-                "error": self.error,
-                "counts": self.counts.copy(),
-                "total": sum(self.counts.values()),
-                "updated_at": self.updated_at,
-            }
-
-    def stream(self):
-        with self.stream_lock:
-            capture = None
-            failed = False
-            try:
-                model_inst = load_model()
-                capture, frame = open_camera()
-                with APP_CONFIG_LOCK:
-                    config = {
-                        "classes": app_config["classes"].copy(),
-                        "confidence": app_config["confidence"],
-                    }
-                results = model_inst.predict(
-                    frame,
-                    classes=config["classes"],
-                    conf=config["confidence"],
-                    imgsz=640,
-                    verbose=False,
-                )
-                with self.condition:
-                    self.status = "running"
-                    self.error = None
-                    self.condition.notify_all()
-
-                while True:
-                    counts = INITIAL_COUNTS.copy()
-                    boxes = results[0].boxes
-                    if boxes is not None:
-                        for class_id in boxes.cls.int().tolist():
-                            name = CLASS_NAMES.get(class_id)
-                            if name:
-                                counts[name] += 1
-
-                    annotated_frame = results[0].plot()
-                    encoded, buffer = cv2.imencode(
-                        ".jpg", annotated_frame, [cv2.IMWRITE_JPEG_QUALITY, 80]
-                    )
-                    if not encoded:
-                        raise RuntimeError("Could not encode the annotated camera frame.")
-
-                    with self.condition:
-                        self.counts = counts
-                        self.updated_at = datetime.now(timezone.utc).isoformat()
-                        self.condition.notify_all()
-
-                    yield (
-                        b"--frame\r\nContent-Type: image/jpeg\r\n\r\n"
-                        + buffer.tobytes()
-                        + b"\r\n"
-                    )
-
-                    ok, frame = capture.read()
-                    if not ok or frame is None:
-                        LOGGER.warning("Webcam frame read failed; reopening the camera")
-                        capture.release()
-                        capture, frame = open_camera()
-                    with APP_CONFIG_LOCK:
-                        config = {
-                            "classes": app_config["classes"].copy(),
-                            "confidence": app_config["confidence"],
-                        }
-                    results = model_inst.predict(
-                        frame,
-                        classes=config["classes"],
-                        conf=config["confidence"],
-                        imgsz=640,
-                        verbose=False,
-                    )
-            except GeneratorExit:
-                raise
-            except Exception as exc:
-                failed = True
-                LOGGER.exception("Camera detection stopped")
-                with self.condition:
-                    self.status = "error"
-                    self.error = str(exc)
-                    self.condition.notify_all()
-            finally:
-                if capture is not None:
-                    capture.release()
-                if not failed:
-                    with self.condition:
-                        self.status = "idle"
-                        self.condition.notify_all()
-
-
-detector = CameraDetector()
-
-
-def serve_page(directory, filename):
-    return send_from_directory(UI_DIR / directory, filename)
 
 
 @app.get("/")
@@ -221,23 +44,17 @@ def home():
 
 @app.get("/camera")
 def camera():
-    return serve_page("kamera_deteksi_pintar", "kamera.html")
+    return send_from_directory(UI_DIR / "kamera_deteksi_pintar", "kamera.html")
 
 
 @app.get("/settings")
 def settings():
-    return serve_page("pengaturan_deteksi_pintar", "pengaturan.html")
+    return send_from_directory(UI_DIR / "pengaturan_deteksi_pintar", "pengaturan.html")
 
 
 @app.get("/history")
 def history():
-    return serve_page("riwayat_deteksi_deteksi_pintar", "riwayat.html")
-
-
-@app.get("/api/counts")
-def counts():
-    data = detector.snapshot()
-    return jsonify(data), 503 if data["status"] == "error" else 200
+    return send_from_directory(UI_DIR / "riwayat_deteksi_deteksi_pintar", "riwayat.html")
 
 
 @app.get("/api/settings")
@@ -298,8 +115,11 @@ def predict():
         nparr = np.frombuffer(base64.b64decode(encoded), np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-        # Jalankan YOLO tanpa filter ketat agar ponsel & semua objek tertangkap
-        results = model(img, conf=0.30, verbose=False)[0]
+        with APP_CONFIG_LOCK:
+            classes = app_config["classes"]
+            conf = app_config["confidence"]
+
+        results = model(img, classes=classes, conf=conf, verbose=False)[0]
 
         detections = []
         counts_dict = {}
@@ -307,15 +127,14 @@ def predict():
         for box in results.boxes:
             cls_id = int(box.cls[0])
             name = model.names[cls_id]
-            conf = float(box.conf[0])
+            confidence_val = float(box.conf[0])
             xyxy = box.xyxy[0].tolist()
 
-            # Hitung semua objek yang terdeteksi
             counts_dict[name] = counts_dict.get(name, 0) + 1
 
             detections.append({
                 'class': name,
-                'confidence': round(conf, 2),
+                'confidence': round(confidence_val, 2),
                 'box': [int(v) for v in xyxy]
             })
 
@@ -331,7 +150,7 @@ def predict():
         return jsonify({'error': str(e)}), 500
 
 
-# --- LOG LOKAL (logs.json) ---
+# --- LOG LOKAL (logs.json) & SUPABASE ---
 def read_logs_from_file():
     if not LOG_FILE_PATH.exists():
         return []
@@ -347,7 +166,7 @@ def write_logs_to_file(logs):
     tmp_path = LOG_FILE_PATH.with_suffix(".json.tmp")
     with open(tmp_path, "w", encoding="utf-8") as f:
         json.dump(logs, f, ensure_ascii=False, indent=2)
-    os.replace(tmp_path, LOG_FILE_PATH)  # penulisan atomik
+    os.replace(tmp_path, LOG_FILE_PATH)
 
 
 @app.get("/api/logs")
@@ -372,7 +191,6 @@ def get_logs():
                             "location": item.get("location", ""),
                             "duration": item.get("duration", "00:00"),
                         })
-                    # urutkan lama -> baru, karena riwayat.html membalik urutan
                     supa_list.reverse()
                     return jsonify(supa_list)
             except Exception as se:
@@ -434,7 +252,6 @@ def delete_log(log_id):
         deleted_local = False
         deleted_remote = False
 
-        # 1. Hapus dari logs.json lokal
         with LOG_LOCK:
             logs = read_logs_from_file()
             remaining = [l for l in logs if str(l.get("id")) != str(log_id)]
@@ -442,7 +259,6 @@ def delete_log(log_id):
                 write_logs_to_file(remaining)
                 deleted_local = True
 
-        # 2. Hapus dari Supabase (jika aktif); kegagalan tidak membatalkan hapus lokal
         if supabase:
             try:
                 res = supabase.table("logs").delete().eq("id", log_id).execute()
@@ -458,22 +274,10 @@ def delete_log(log_id):
         return jsonify({"error": str(e)}), 500
 
 
-@app.get("/video_feed")
-def video_feed():
-    return Response(
-        detector.stream(),
-        mimetype="multipart/x-mixed-replace; boundary=frame",
-        headers={
-            "Cache-Control": "no-cache, no-store, must-revalidate",
-            "X-Accel-Buffering": "no",
-        },
-    )
-
-
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     app.run(
-        host=os.environ.get("HOST", "127.0.0.1"),
+        host="0.0.0.0",
         port=int(os.environ.get("PORT", "5000")),
         debug=False,
         threaded=True,
