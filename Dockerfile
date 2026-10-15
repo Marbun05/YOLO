@@ -15,4 +15,4 @@ COPY . .
 
 EXPOSE 8080
 
-CMD gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 8 app:app
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 8 app:app"]
